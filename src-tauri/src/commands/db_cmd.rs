@@ -28,9 +28,9 @@ pub async fn db_get_all_settings(state: State<'_, AppState>) -> Result<AppSettin
         .unwrap_or_else(|| "Ctrl+Alt+Shift+S".to_string());
     let screenshot_hotkey = kv_map.get("screenshot_hotkey").cloned().unwrap_or_else(crate::default_screenshot_hotkey);
     let update_url = kv_map.get("update_url").cloned().unwrap_or_default();
-    let real_doc_files_dir = dirs::document_dir()
+    let real_doc_files_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Files")
         .to_string_lossy()
         .to_string();

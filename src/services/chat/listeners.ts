@@ -226,8 +226,7 @@ export function initFileTransferListeners() {
     const allChats = await storageService.getAllChats();
     const msg = allChats.find(
       (m) =>
-        m.fileAttachment?.id === data.taskId ||
-        m.fileAttachment?.name === data.fileName,
+        m.fileAttachment?.id === data.taskId,
     );
     if (msg && msg.fileAttachment) {
       const total = data.total || msg.fileAttachment.size || 0;
@@ -256,8 +255,7 @@ export function initFileTransferListeners() {
     const allChats = await storageService.getAllChats();
     const msg = allChats.find(
       (m) =>
-        m.fileAttachment?.id === data.taskId ||
-        m.fileAttachment?.name === data.fileName,
+        m.fileAttachment?.id === data.taskId,
     );
     if (msg && msg.fileAttachment) {
       msg.fileAttachment.state = "received";
@@ -337,8 +335,7 @@ export function initFileTransferListeners() {
     const allChats = await storageService.getAllChats();
     const msg = allChats.find(
       (m) =>
-        m.fileAttachment?.id === data.taskId ||
-        m.fileAttachment?.name === data.fileName,
+        m.fileAttachment?.id === data.taskId,
     );
     if (
       msg &&

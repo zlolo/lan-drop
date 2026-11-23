@@ -110,6 +110,7 @@ export function App() {
         if (
           !newConfig.downloadDir ||
           newConfig.downloadDir.includes("[用户文档]") ||
+          newConfig.downloadDir.includes("[用户目录]") ||
           newConfig.downloadDir === "C:\\LAN Drop\\Files" ||
           newConfig.downloadDir === "~/Downloads/FlashDrop"
         ) {

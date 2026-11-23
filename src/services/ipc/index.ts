@@ -638,7 +638,7 @@ export class IPCService {
     }
   }
 
-  // 获取 [用户文档]/LAN Drop/Media 目录绝对路径
+  // 获取 [用户目录]/.lan-drop/Media 目录绝对路径
   async getMediaDir(): Promise<string> {
     if (isTauri()) {
       try {
@@ -649,10 +649,10 @@ export class IPCService {
         // fallback
       }
     }
-    return "[用户文档]/LAN Drop/Media";
+    return "[用户目录]/.lan-drop/Media";
   }
 
-  // 保存媒体文件到 [用户文档]/LAN Drop/Media 目录，名称为 md5 值
+  // 保存媒体文件到 [用户目录]/.lan-drop/Media 目录，名称为 md5 值
   async saveMediaFileToDisk(
     md5: string,
     ext: string,
@@ -673,7 +673,7 @@ export class IPCService {
       }
     }
     const fileName = cleanExt ? `${md5}.${cleanExt}` : md5;
-    return `[用户文档]/LAN Drop/Media/${fileName}`;
+    return `[用户目录]/.lan-drop/Media/${fileName}`;
   }
 
   // 发送方从本地原路径快速保存/拷贝到 Media 目录（名称为 md5）
@@ -697,7 +697,7 @@ export class IPCService {
       }
     }
     const fileName = cleanExt ? `${md5}.${cleanExt}` : md5;
-    return `[用户文档]/LAN Drop/Media/${fileName}`;
+    return `[用户目录]/.lan-drop/Media/${fileName}`;
   }
 
   // 从本地硬盘/缓存中物理删除指定文件
@@ -954,7 +954,7 @@ export class IPCService {
           return {
             status: "no_master",
             current_version: "2.0.0",
-            message: `Master 机器 (${cleanIp}) 尚未发布更新（[文档]/LAN Drop/Update 目录下未放置 version.cfg）`,
+            message: `Master 机器 (${cleanIp}) 尚未发布更新（[用户目录]/.lan-drop/Update 目录下未放置 version.cfg）`,
           };
         }
         return {

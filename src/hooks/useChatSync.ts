@@ -226,8 +226,7 @@ export function useChatSync({
       setAllChats((prev) => {
         const idx = prev.findIndex(
           (m) =>
-            m.fileAttachment?.id === data.taskId ||
-            m.fileAttachment?.name === data.fileName,
+            m.fileAttachment?.id === data.taskId,
         );
         if (idx >= 0) {
           const next = [...prev];

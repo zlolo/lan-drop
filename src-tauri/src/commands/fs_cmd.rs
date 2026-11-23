@@ -16,9 +16,9 @@ pub struct SysInfo {
 #[tauri::command]
 pub async fn get_sys_info(state: State<'_, AppState>) -> Result<SysInfo, String> {
     let hostname = whoami::fallible::hostname().unwrap_or_else(|_| "Desktop".into());
-    let lan_drop_dir = dirs::document_dir()
+    let lan_drop_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop");
+        .join(".lan-drop");
     let doc_dir = lan_drop_dir
         .join("Files")
         .to_string_lossy()
@@ -63,9 +63,9 @@ pub fn check_file_exists(file_path: String) -> Result<bool, String> {
     }
 
     // 若传入的是相对路径或仅文件名，自动到 Media 和 Files 目录中探测
-    let doc_dir = dirs::document_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
-    let media_dir = doc_dir.join("LAN Drop").join("Media");
-    let files_dir = doc_dir.join("LAN Drop").join("Files");
+    let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let media_dir = home.join(".lan-drop").join("Media");
+    let files_dir = home.join(".lan-drop").join("Files");
 
     if let Some(file_name) = p.file_name() {
         let in_media = media_dir.join(file_name);
@@ -95,8 +95,8 @@ pub async fn read_media_data_url(file_path: String, mime_type: Option<String>) -
 
     if !target_path.exists() {
         if let Some(name) = std::path::Path::new(&file_path).file_name() {
-            let doc_dir = dirs::document_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
-            let in_media = doc_dir.join("LAN Drop").join("Media").join(name);
+            let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+            let in_media = home.join(".lan-drop").join("Media").join(name);
             if in_media.exists() {
                 target_path = in_media;
             }
@@ -141,9 +141,9 @@ pub async fn read_media_data_url(file_path: String, mime_type: Option<String>) -
 
 #[tauri::command]
 pub fn get_media_dir() -> Result<String, String> {
-    let media_dir = dirs::document_dir()
+    let media_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Media");
     if !media_dir.exists() {
         let _ = std::fs::create_dir_all(&media_dir);
@@ -157,9 +157,9 @@ pub async fn save_media_file_to_disk(
     ext: String,
     data: Vec<u8>,
 ) -> Result<String, String> {
-    let media_dir = dirs::document_dir()
+    let media_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Media");
     if !media_dir.exists() {
         let _ = std::fs::create_dir_all(&media_dir);
@@ -189,9 +189,9 @@ pub async fn save_media_from_path(
     ext: String,
     source_path: String,
 ) -> Result<String, String> {
-    let media_dir = dirs::document_dir()
+    let media_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Media");
     if !media_dir.exists() {
         let _ = std::fs::create_dir_all(&media_dir);
@@ -234,10 +234,10 @@ pub fn delete_file_from_disk(file_path: String) -> Result<bool, String> {
         }
     }
 
-    // 尝试在 LAN Drop 默认目录（Media 和 Files）中查找并删除
-    let doc_dir = dirs::document_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
-    let media_dir = doc_dir.join("LAN Drop").join("Media");
-    let files_dir = doc_dir.join("LAN Drop").join("Files");
+    // 尝试在默认目录（Media 和 Files）中查找并删除
+    let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let media_dir = home.join(".lan-drop").join("Media");
+    let files_dir = home.join(".lan-drop").join("Files");
 
     if let Some(file_name) = std::path::Path::new(&file_path).file_name() {
         let in_media = media_dir.join(file_name);
@@ -348,17 +348,17 @@ pub async fn save_file_to_disk(file_name: String, base64_data: String, state: St
 
     let dir = state.download_dir.read().await.clone();
 
-    // 与文件传输保存目录绝对统一：保证落地在 [用户文档]/LAN Drop/Files 目录下
+    // 默认保存到 [用户目录]/.lan-drop/Files，自定义目录保持不变
     let save_dir = if dir.trim().is_empty() || dir.contains("\\Users\\User\\") || dir.contains("/Users/User/") {
-        dirs::document_dir()
+        dirs::home_dir()
             .unwrap_or_else(|| std::path::PathBuf::from("."))
-            .join("LAN Drop")
+            .join(".lan-drop")
             .join("Files")
     } else {
         let p = std::path::PathBuf::from(&dir);
         if p.ends_with("Files") {
             p
-        } else if p.ends_with("LAN Drop") {
+        } else if p.ends_with(".lan-drop") {
             p.join("Files")
         } else {
             p

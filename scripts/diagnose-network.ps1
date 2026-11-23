@@ -10,11 +10,11 @@ param(
 # 仅检查本机与指定对端，不扫描网段，不修改防火墙或网络设置。
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Net.Http
-$reportRoot = [Environment]::GetFolderPath('MyDocuments')
+$reportRoot = [Environment]::GetFolderPath('UserProfile')
 if (-not $reportRoot) { $reportRoot = [System.IO.Path]::GetTempPath() }
-$appLogPath = Join-Path $reportRoot 'LAN Drop\logs\app.log'
+$appLogPath = Join-Path $reportRoot '.lan-drop\logs\app.log'
 if (-not $OutputFile) {
-    $OutputFile = Join-Path $reportRoot 'LAN Drop\logs\diagnostics.txt'
+    $OutputFile = Join-Path $reportRoot '.lan-drop\logs\diagnostics.txt'
 }
 $OutputFile = [System.IO.Path]::GetFullPath($OutputFile)
 $reportDirectory = [System.IO.Path]::GetDirectoryName($OutputFile)

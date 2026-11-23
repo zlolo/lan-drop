@@ -62,8 +62,8 @@ impl Write for LogWriter {
 }
 
 pub fn init_logging() {
-    let directory = dirs::document_dir().or_else(dirs::data_local_dir)
-        .unwrap_or_else(std::env::temp_dir).join("LAN Drop").join("logs");
+    let directory = dirs::home_dir().or_else(dirs::data_local_dir)
+        .unwrap_or_else(std::env::temp_dir).join(".lan-drop").join("logs");
     let file = std::fs::create_dir_all(&directory)
         .and_then(|_| LogFile::open(directory.join("app.log"), 2 * 1024 * 1024));
     let writer = match file {

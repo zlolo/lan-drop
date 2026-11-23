@@ -169,8 +169,7 @@ export async function initTauriBridge(ipc: IPCService) {
       const allChats = await storageService.getAllChats();
       const fileMsg = allChats.find(
         (m) =>
-          m.fileAttachment?.id === payload.taskId ||
-          m.fileAttachment?.name === payload.fileName,
+          m.fileAttachment?.id === payload.taskId,
       );
       if (fileMsg && fileMsg.fileAttachment) {
         fileMsg.fileAttachment.state = "received";

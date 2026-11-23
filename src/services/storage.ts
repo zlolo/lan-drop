@@ -18,14 +18,14 @@ export function getDefaultMachineName(): string {
 let cachedRealDocDir: string = "";
 
 export function setDefaultDocumentsCache(path: string) {
-  if (path && !path.includes("[用户文档]")) {
+  if (path && !path.includes("[用户文档]") && !path.includes("[用户目录]")) {
     cachedRealDocDir = path;
   }
 }
 
 export function getDefaultDocumentsPath(): string {
   if (cachedRealDocDir) return cachedRealDocDir;
-  return "[用户文档]/LAN Drop/Files";
+  return "[用户目录]/.lan-drop/Files";
 }
 
 /**

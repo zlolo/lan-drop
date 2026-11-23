@@ -64,6 +64,16 @@ Thumbs.db
 *.swp
 *.swo
 
+# Release & Temporary Files
+/release/
+/.tmp/
+/tmp/
+/temp/
+*.tmp
+*.temp
+*.bak
+*~
+
 # Project
 src-tauri/icons/
 bun.lock

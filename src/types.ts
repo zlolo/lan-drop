@@ -68,7 +68,7 @@ export interface FileAttachmentMeta {
   progress: number; // 0 - 100
   speed: number; // 实时速率 bytes/s
   transferredBytes?: number; // 已传输字节数（用于断点续传 offset）
-  savedPath?: string; // 磁盘绝对路径（如 [用户文档]/LAN Drop/Media/xxx 或 Files/xxx）
+  savedPath?: string; // 磁盘绝对路径（如 [用户目录]/.lan-drop/Media/xxx 或 Files/xxx）
   isMissing?: boolean; // 本地源文件是否已丢失
   isMedia?: boolean; // 是否为图片/音视频等多媒体文件
   senderIp: string;

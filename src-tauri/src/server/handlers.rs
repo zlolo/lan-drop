@@ -36,11 +36,11 @@ pub async fn handle_get_info(State(ctx): State<Arc<ServerContext>>) -> impl Into
     Json(dev)
 }
 
-/// 响应内网 Master 更新检查请求：读取 "[用户文档]/LAN Drop/Update/version.cfg" 版本号
+/// 响应内网 Master 更新检查请求：读取 "[用户目录]/.lan-drop/Update/version.cfg" 版本号
 pub async fn handle_get_update_version() -> impl IntoResponse {
-    let update_dir = dirs::document_dir()
+    let update_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Update");
     let cfg_path = update_dir.join("version.cfg");
 
@@ -62,11 +62,11 @@ pub async fn handle_get_update_version() -> impl IntoResponse {
     }))
 }
 
-/// 响应内网 Master 更新下载请求：流式提供 "[用户文档]/LAN Drop/Update/lan-drop.exe" (或 lan-drop) 文件
+/// 响应内网 Master 更新下载请求：流式提供 "[用户目录]/.lan-drop/Update/lan-drop.exe" (或 lan-drop) 文件
 pub async fn handle_download_update() -> Result<impl IntoResponse, (axum::http::StatusCode, &'static str)> {
-    let update_dir = dirs::document_dir()
+    let update_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Update");
 
     let exe_path = update_dir.join("lan-drop.exe");
@@ -308,8 +308,8 @@ pub async fn handle_stream_transfer(
     // 建立多重备选存储路径列表 (应对权限拒绝 os error 5 或系统限制)
     let mut candidate_dirs = Vec::new();
     if is_media {
-        if let Some(doc) = dirs::document_dir() {
-            candidate_dirs.push(doc.join("LAN Drop").join("Media"));
+        if let Some(home) = dirs::home_dir() {
+            candidate_dirs.push(home.join(".lan-drop").join("Media"));
         }
     } else {
         let preferred_str = { ctx.download_dir.read().await.clone() };
@@ -317,8 +317,8 @@ pub async fn handle_stream_transfer(
             candidate_dirs.push(std::path::PathBuf::from(preferred_str));
         }
     }
-    if let Some(doc) = dirs::document_dir() {
-        candidate_dirs.push(doc.join("LAN Drop").join(sub_folder));
+    if let Some(home) = dirs::home_dir() {
+        candidate_dirs.push(home.join(".lan-drop").join(sub_folder));
     }
     if let Some(dl) = dirs::download_dir() {
         candidate_dirs.push(dl.join("LAN Drop").join(sub_folder));
@@ -354,7 +354,7 @@ pub async fn handle_stream_transfer(
     let mut last_err = String::new();
 
     for dir in candidate_dirs {
-        let file_dest = dir.join(&safe_file_name);
+        let mut file_dest = dir.join(&safe_file_name);
         if let Some(parent) = file_dest.parent() {
             if let Err(e) = tokio::fs::create_dir_all(parent).await {
                 last_err = format!("创建目录失败 ({:?}): {}", parent, e);
@@ -369,7 +369,29 @@ pub async fn handle_stream_transfer(
                 .open(&file_dest)
                 .await
         } else {
-            File::create(&file_dest).await
+            // 原子创建，既保护已有文件，也避免并发接收同名文件时相互覆盖。
+            let name_path = std::path::Path::new(&safe_file_name);
+            let stem = name_path.file_stem().unwrap_or_default().to_string_lossy();
+            let extension = name_path.extension().map(|ext| ext.to_string_lossy());
+            let mut suffix = 0u64;
+            loop {
+                let result = tokio::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&file_dest)
+                    .await;
+                match result {
+                    Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                        suffix += 1;
+                        let name = match &extension {
+                            Some(ext) => format!("{} ({}).{}", stem, suffix, ext),
+                            None => format!("{} ({})", stem, suffix),
+                        };
+                        file_dest = dir.join(name);
+                    }
+                    result => break result,
+                }
+            }
         };
 
         match open_res {

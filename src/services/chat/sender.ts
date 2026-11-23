@@ -36,7 +36,7 @@ export async function sendTextMessage(
   return msg;
 }
 
-// 发送文件/多媒体消息（多媒体自动保存至 [用户文档]/LAN Drop/Media 并以 MD5 命名，非 base64 形式发送）
+// 发送文件/多媒体消息（多媒体自动保存至 [用户目录]/.lan-drop/Media 并以 MD5 命名，非 base64 形式发送）
 export async function sendFileMessage(
   targetPeer: PeerDevice,
   file:

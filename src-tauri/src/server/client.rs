@@ -19,8 +19,8 @@ pub async fn query_partial_file_size(download_dir: &str, file_name: &str) -> u64
     if !download_dir.trim().is_empty() {
         candidate_dirs.push(std::path::PathBuf::from(download_dir));
     }
-    if let Some(doc) = dirs::document_dir() {
-        candidate_dirs.push(doc.join("LAN Drop").join("Files"));
+    if let Some(home) = dirs::home_dir() {
+        candidate_dirs.push(home.join(".lan-drop").join("Files"));
     }
     if let Some(dl) = dirs::download_dir() {
         candidate_dirs.push(dl.join("LAN Drop").join("Files"));

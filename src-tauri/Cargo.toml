@@ -1,6 +1,6 @@
 [package]
 name = "lan-drop"
-version = "1.0.6"
+version = "1.0.8"
 description = "内网投送 (LAN Drop) - 基于 Tauri v2 + Rust + React 的轻量级 P2P 局域网极速文件传输与即时投送工具"
 edition = "2021"
 

@@ -30,10 +30,10 @@ async fn main() {
     let single_instance_listener = ensure_single_instance();
 
     // 1. 初始化 SQLite 数据库与获取持久化设备唯一标识
-    // 数据库路径规范："[用户文档]/LAN Drop/data.db"
-    let lan_drop_dir = dirs::document_dir()
+    // 数据库路径规范："[用户目录]/.lan-drop/data.db"
+    let lan_drop_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop");
+        .join(".lan-drop");
     let _ = std::fs::create_dir_all(&lan_drop_dir);
 
     system::logging::init_logging();
@@ -53,7 +53,7 @@ async fn main() {
 
     let database = Arc::new(
         db::Database::init(&db_path.to_string_lossy())
-            .expect("无法初始化数据库 [用户文档]/LAN Drop/data.db"),
+            .expect("无法初始化数据库 [用户目录]/.lan-drop/data.db"),
     );
 
     let node_id = match database.get_kv("node_id") {
@@ -115,14 +115,10 @@ async fn main() {
     log::info!("[网络启动] PID={}，ID={}，地址={}:{}", std::process::id(),
         local_info.id, local_info.ip, local_info.port);
 
-    let default_doc_dir_path = dirs::document_dir()
-        .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+    let default_doc_dir_path = lan_drop_dir.clone()
         .join("Files");
     let _ = std::fs::create_dir_all(&default_doc_dir_path);
-    let default_media_dir_path = dirs::document_dir()
-        .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+    let default_media_dir_path = lan_drop_dir.clone()
         .join("Media");
     let _ = std::fs::create_dir_all(&default_media_dir_path);
     let default_doc_dir = default_doc_dir_path.to_string_lossy().to_string();

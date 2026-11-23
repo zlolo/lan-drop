@@ -1,6 +1,6 @@
 // 局域网 Master 自更新与热替换模块
 // 机制：
-// 1. 任何客户端均可作为 Master 机器，在其 "[用户文档]/LAN Drop/Update/" 目录下放置 version.cfg (如 "2.0.1") 与可执行文件 (lan-drop.exe / lan-drop)
+// 1. 任何客户端均可作为 Master 机器，在其 "[用户目录]/.lan-drop/Update/" 目录下放置 version.cfg (如 "2.0.1") 与可执行文件 (lan-drop.exe / lan-drop)
 // 2. 客户端配置 Master IP 后，启动时及每 30 分钟静默检测，发现版本不符自动下载并执行自替换与无缝重启
 
 use serde::{Deserialize, Serialize};
@@ -162,7 +162,7 @@ pub async fn check_and_perform_update(
 
     log::info!("发现新版本 [v{}] (本机版本: v{})，正在从 Master [{}] 下载更新包...", remote_ver, CURRENT_APP_VERSION, download_url);
 
-    // 3. 下载更新二进制文件与定位 [用户文档]/LAN Drop/Temp/ 临时操作目录
+    // 3. 下载更新二进制文件与定位 [用户目录]/.lan-drop/Temp/ 临时操作目录
     let current_exe = match std::env::current_exe() {
         Ok(path) => path,
         Err(e) => {
@@ -171,9 +171,9 @@ pub async fn check_and_perform_update(
         }
     };
 
-    let temp_dir = dirs::document_dir()
+    let temp_dir = dirs::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join("LAN Drop")
+        .join(".lan-drop")
         .join("Temp");
     let _ = std::fs::create_dir_all(&temp_dir);
 
@@ -238,13 +238,13 @@ fn execute_self_replace_and_restart(
         use std::os::windows::process::CommandExt;
         use std::process::Command;
 
-        // 临时操作文件：备份旧文件统一放置在 [用户文档]/LAN Drop/Temp/ 目录下
+        // 临时操作文件：备份旧文件统一放置在 [用户目录]/.lan-drop/Temp/ 目录下
         let old_exe = temp_dir.join(format!("{}.old", exe_filename.to_string_lossy()));
         if old_exe.exists() {
             let _ = std::fs::remove_file(&old_exe);
         }
 
-        // 1. 尝试将运行中的旧 exe 重命名/移动至 [用户文档]/LAN Drop/Temp/ 目录
+        // 1. 尝试将运行中的旧 exe 重命名/移动至 [用户目录]/.lan-drop/Temp/ 目录
         let mut used_old_path = old_exe.clone();
         if let Err(e) = std::fs::rename(current_exe, &used_old_path) {
             log::warn!("重命名旧文件到 Temp 目录失败（可能是跨卷）: {}，使用本地过渡重命名", e);
